@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>SMART-PFE</title>
     <link rel="icon" href="img/icon.png" type="image/x-icon">
-    <link rel="stylesheet" href="pages/styles.css">
+    <link rel="stylesheet" href="pages/mystyles.css">
 </head>
 
 
