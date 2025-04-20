@@ -6,15 +6,15 @@ if (isset($_POST['login'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Vérification de l'utilisateur dans la table users
+    
     $checkUser = $conn->query("SELECT * FROM users WHERE email = '$email'");
 
     if ($checkUser->num_rows > 0) {
         $user = $checkUser->fetch_assoc();
 
-        // Vérification du mot de passe
+        
         if ($password === $user['password']) {
-            // Vérification supplémentaire selon le rôle
+            
             $canLogin = false;
             $errorMessage = '';
 
@@ -22,7 +22,7 @@ if (isset($_POST['login'])) {
                 $canLogin = true;
             }
             elseif ($user['role'] === 'enseignant') {
-                // Utilisation de l'email pour trouver l'enseignant
+               
                 $enseignantCheck = $conn->query("SELECT id FROM enseignants WHERE email = '".$user['email']."'");
                 if ($enseignantCheck->num_rows > 0) {
                     $canLogin = true;
@@ -32,7 +32,7 @@ if (isset($_POST['login'])) {
                 }
             }
             elseif ($user['role'] === 'etudiant') {
-                // Utilisation de l'email pour trouver l'étudiant
+               
                 $etudiantCheck = $conn->query("SELECT id FROM etudiants WHERE email = '".$user['email']."'");
                 if ($etudiantCheck->num_rows > 0) {
                     $canLogin = true;
@@ -43,12 +43,12 @@ if (isset($_POST['login'])) {
             }
 
             if ($canLogin) {
-                // Stockage des informations de session
+                
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
 
-                // Redirection selon le rôle
+                
                 if($user['role'] === 'admin') {
                     header("Location: admin/admin.php");
                 } elseif($user['role'] === 'enseignant') {

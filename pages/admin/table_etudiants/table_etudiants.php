@@ -1,7 +1,6 @@
 <?php
 include('../../connexion_db.php');
 
-// Récupérer tous les étudiants
 $sql = "SELECT e.*, f.nom as filiere_nom 
         FROM etudiants e 
         LEFT JOIN filieres f ON e.fil_id = f.id";

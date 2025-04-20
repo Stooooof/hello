@@ -1,21 +1,18 @@
 <?php
 include('../../connexion_db.php');
 
-// 1. Récupérer l'ID de l'étudiant
 $id = $_GET['id'];
 
 $sql = "SELECT * FROM etudiants WHERE id = $id";
 $result = $conn->query($sql);
 $etudiant = $result->fetch_assoc();
 
-// 3. Récupérer la liste des filières
 $filieres_result = $conn->query("SELECT * FROM filieres");
 $filieres = [];
 while($row = $filieres_result->fetch_assoc()) {
     $filieres[] = $row;
 }
 
-// 3. Traitement du formulaire
 if(isset($_POST['submit'])) {
     $matricule = $_POST['matricule'];
     $nom = $_POST['nom'];
@@ -25,7 +22,6 @@ if(isset($_POST['submit'])) {
     $promotion = $_POST['promotion'];
     $fil_id = $_POST['fil_id'];
 
-    // 4. Requête de mise à jour
     $sql = "UPDATE etudiants SET 
             matricule = '$matricule',
             nom = '$nom',

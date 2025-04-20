@@ -1,35 +1,28 @@
 <?php
 include('../../connexion_db.php');
 
-// 1. Récupérer l'ID du département
 $id = $_GET['id'];
 
-// 2. Récupérer les données du département
 $sql = "SELECT * FROM departements WHERE id = $id";
 $result = $conn->query($sql);
 $departement = $result->fetch_assoc();
 
-// 3. Récupérer la liste des enseignants (pour le chef de département)
 $enseignants_result = $conn->query("SELECT id, nom, prenom FROM enseignants");
 $enseignants = [];
 while($row = $enseignants_result->fetch_assoc()) {
     $enseignants[] = $row;
 }
 
-// 4. Traitement du formulaire
 if(isset($_POST['submit'])) {
     $nom = $_POST['nom'];
     $chef_id = $_POST['chef_id'] ?? null;
 
-    // Validation
     $errors = [];
     if(empty($nom)) {
         $errors['nom'] = "Le nom du département est obligatoire";
     }
 
-    // Si pas d'erreurs
     if(empty($errors)) {
-        // Requête de mise à jour
         $sql = "UPDATE departements SET 
                 nom = '$nom',
                 chef_id = " . ($chef_id ? "'$chef_id'" : "NULL") . "

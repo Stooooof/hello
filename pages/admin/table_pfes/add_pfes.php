@@ -2,30 +2,29 @@
 session_start();
 include('../../connexion_db.php');
 
-// Vérification de session
 if (!isset($_SESSION['email'])) {
     header('Location: ../../login.php');
     exit();
 }
 
-// Initialisation
+
 $errors = [];
 $uploadDir = "C:/xampp/htdocs/pfe_uploads/";
 
-// Créer le dossier s'il n'existe pas
+
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
-// Récupérer le rôle de l'utilisateur
+
 $email = $_SESSION['email'];
 $user_query = $conn->query("SELECT role FROM users WHERE email = '$email'");
 $user = $user_query->fetch_assoc();
 $role = $user['role'];
 
-// Traitement du formulaire
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
+
     $titre = trim($_POST['titre']);
     $resume = trim($_POST['resume']);
     $organisme = trim($_POST['organisme']);
@@ -33,25 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email_ex = trim($_POST['email_ex']);
     $encadrant_in_id = (int)$_POST['encadrant_in_id'];
 
-    // Gestion de l'étudiant selon le rôle
     if ($role === 'etudiant') {
-        // Si étudiant, on prend son propre ID
         $etudiant_query = $conn->query("SELECT user_id FROM users WHERE email = '$email'");
         $etudiant = $etudiant_query->fetch_assoc();
         $etudiant_id = $etudiant['user_id'];
     } elseif ($role === 'admin' && isset($_POST['etudiant_id'])) {
-        // Si admin, on prend l'étudiant sélectionné
         $etudiant_id = (int)$_POST['etudiant_id'];
     } else {
         $errors['etudiant'] = "Sélection d'étudiant requise";
     }
 
-    // Validation
     if (empty($titre)) $errors['titre'] = "Titre obligatoire";
     if (empty($organisme)) $errors['organisme'] = "Organisme obligatoire";
     if (empty($encadrant_ex)) $errors['encadrant_ex'] = "Encadrant externe obligatoire";
 
-    // Gestion du fichier
     $rapportPath = null;
     if (isset($_FILES['rapport']) && $_FILES['rapport']['error'] == 0) {
         $fileExt = strtolower(pathinfo($_FILES['rapport']['name'], PATHINFO_EXTENSION));
@@ -68,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Insertion si pas d'erreurs
     if (empty($errors) && isset($etudiant_id)) {
         $sql = "INSERT INTO pfes 
                 (titre, resume, organisme, encadrant_ex, email_ex, encadrant_in_id, etudiant_id, rapport)
@@ -88,7 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer les enseignants et étudiants (pour admin)
 $enseignants = $conn->query("SELECT id, nom, prenom FROM enseignants");
 $etudiants = $conn->query("SELECT e.id, e.nom, e.prenom FROM etudiants e JOIN users u ON e.id = u.user_id WHERE u.role = 'etudiant'");
 ?>
@@ -114,7 +106,6 @@ $etudiants = $conn->query("SELECT e.id, e.nom, e.prenom FROM etudiants e JOIN us
                 <p class="error-message"><?= $errors['etudiant'] ?></p>
             <?php endif; ?>
 
-            <!-- Champs communs -->
             <input class="login_input" type="text" name="titre" value="<?= htmlspecialchars($_POST['titre'] ?? '') ?>" placeholder="Titre*" required>
             <?php if (!empty($errors['titre'])): ?>
                 <small class="error-message"><?= $errors['titre'] ?></small>
@@ -143,7 +134,6 @@ $etudiants = $conn->query("SELECT e.id, e.nom, e.prenom FROM etudiants e JOIN us
                 <?php endwhile; ?>
             </select>
 
-            <!-- Sélection d'étudiant pour admin -->
             <?php if ($role === 'admin'): ?>
                 <select class="login_select" name="etudiant_id" required>
                     <option value="">Sélectionner un étudiant*</option>

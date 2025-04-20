@@ -32,7 +32,6 @@ session_unset();
                 <input class="login_input" type="password" name="password" placeholder="Password" required>
                 <select class="login_select" name="role" required>
                     <option value=""> --Selectionner le role-- </option>
-                    <option value="admin"> Admin </option>
                     <option value="enseignant"> Enseignant </option>
                     <option value="etudiant"> Etudiant </option>
                 </select>

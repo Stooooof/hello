@@ -2,7 +2,7 @@
 session_start();
 include('../connexion_db.php');
 
-// Vérification de l'authentification et du rôle
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'enseignant') {
     header("Location: ../login.php");
     exit();
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'enseignant') {
 
 $enseignant_id = $_SESSION['enseignant_id'];
 
-// Vérification de l'ID du PFE
+
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: enseignant.php");
     exit();
@@ -18,7 +18,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $pfe_id = $_GET['id'];
 
-// Récupération des détails du PFE avec vérification que l'enseignant est bien l'encadrant
+
 $req_pfe = $conn->query("
     SELECT p.*, 
            e.nom AS etudiant_nom, e.prenom AS etudiant_prenom, e.email AS etudiant_email, e.matricule,
@@ -38,7 +38,7 @@ if ($req_pfe->num_rows === 0) {
 
 $pfe = $req_pfe->fetch_assoc();
 
-// Téléchargement du fichier
+
 if (isset($_GET['download']) && $pfe['rapport']) {
     $file_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport'];
 
@@ -67,65 +67,76 @@ if (isset($_GET['download']) && $pfe['rapport']) {
     <title>Consulter PFE - SMART-PFE</title>
     <link rel="stylesheet" href="../mystyles.css">
 </head>
-<body>
-<?php include('enseignant_header.php'); ?>
+<body class="login_body">
+<div class="Con">
+    <div class="pfe-details consult-pfe-container">
+        <h2 class="login_h2"><?= htmlspecialchars($pfe['titre']) ?></h2>
 
-<div class="container">
-    <h1>Détails du PFE</h1>
-
-    <div class="back-link">
-        <a href="enseignant.php">← Retour à la liste</a>
-    </div>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="error-message"><?= htmlspecialchars($_SESSION['error']) ?></div>
-        <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
-
-    <div class="pfe-details">
-        <h2><?= htmlspecialchars($pfe['titre']) ?></h2>
-
-        <div class="info-grid">
-            <div class="info-group">
-                <h3>Informations sur l'étudiant</h3>
-                <p><strong>Nom:</strong> <?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?></p>
-                <p><strong>Matricule:</strong> <?= htmlspecialchars($pfe['matricule']) ?></p>
-                <p><strong>Email:</strong> <?= htmlspecialchars($pfe['etudiant_email']) ?></p>
-                <p><strong>Filière:</strong> <?= htmlspecialchars($pfe['filiere_nom']) ?></p>
-                <p><strong>Département:</strong> <?= htmlspecialchars($pfe['departement_nom']) ?></p>
-            </div>
-
-            <div class="info-group">
-                <h3>Informations sur le PFE</h3>
-                <p><strong>Organisme:</strong> <?= htmlspecialchars($pfe['organisme']) ?></p>
-                <p><strong>Encadrant externe:</strong> <?= htmlspecialchars($pfe['encadrant_ex']) ?></p>
-                <p><strong>Email encadrant externe:</strong> <?= htmlspecialchars($pfe['email_ex']) ?></p>
-
-                <?php if (!empty($pfe['rapport'])): ?>
-                    <p>
-                        <strong>Rapport:</strong>
-                        <a href="consulter_pfe.php?id=<?= $pfe_id ?>&download=1" class="btn btn-download">Télécharger</a>
-                        <span>(Taille: <?= round(filesize($_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport']) / 1024) ?> KB)</span>
-                    </p>
-                <?php else: ?>
-                    <p><strong>Rapport:</strong> Non disponible</p>
-                <?php endif; ?>
-            </div>
+        <div class="detail-row">
+            <span class="detail-label">Étudiant:</span>
+            <?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?>
         </div>
 
-        <div class="resume-section">
-            <h3>Résumé du projet</h3>
-            <div class="resume-content">
-                <?= nl2br(htmlspecialchars($pfe['resume'])) ?>
-            </div>
+        <div class="detail-row">
+            <span class="detail-label">Matricule:</span>
+            <?= htmlspecialchars($pfe['matricule']) ?>
         </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <?= htmlspecialchars($pfe['etudiant_email']) ?>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Filière:</span>
+            <?= htmlspecialchars($pfe['filiere_nom']) ?>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Département:</span>
+            <?= htmlspecialchars($pfe['departement_nom']) ?>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Organisme:</span>
+            <?= htmlspecialchars($pfe['organisme']) ?>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Encadrant externe:</span>
+            <?= htmlspecialchars($pfe['encadrant_ex']) ?>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Email encadrant externe:</span>
+            <?= htmlspecialchars($pfe['email_ex'] ?? 'Non spécifié') ?>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Résumé:</span>
+            <div class="resume-text"><?= htmlspecialchars($pfe['resume']) ?></div>
+        </div>
+
+        <?php if (!empty($pfe['rapport'])): ?>
+            <div class="detail-row">
+                <span class="detail-label">Rapport:</span>
+                <a href="consulter_pfe.php?id=<?= $pfe_id ?>&download=1" class="download-btn">
+                    Télécharger le rapport
+                </a>
+                
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-message"><?= $_SESSION['error'] ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
         <div class="actions">
-            <a href="modifier_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-primary">Modifier ce PFE</a>
+            <a href="modifier_pfe.php?id=<?= $pfe['id'] ?>" class="login_button">Modifier</a>
+            <a href="enseignant.php" class="login_button cancel">Retour</a>
         </div>
     </div>
 </div>
-
-<?php include('enseignant_footer.php'); ?>
 </body>
 </html>

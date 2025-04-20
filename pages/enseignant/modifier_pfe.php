@@ -2,7 +2,7 @@
 session_start();
 include('../connexion_db.php');
 
-// Vérification de l'authentification et du rôle
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'enseignant') {
     header("Location: ../login.php");
     exit();
@@ -12,7 +12,7 @@ $enseignant_id = $_SESSION['enseignant_id'];
 $errors = [];
 $success = "";
 
-// Vérification de l'ID du PFE
+
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: enseignant.php");
     exit();
@@ -20,7 +20,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $pfe_id = $_GET['id'];
 
-// Récupération des détails du PFE avec vérification que l'enseignant est bien l'encadrant
+
 $req_pfe = $conn->query("
     SELECT p.*, e.nom AS etudiant_nom, e.prenom AS etudiant_prenom
     FROM pfes p 
@@ -35,16 +35,16 @@ if ($req_pfe->num_rows === 0) {
 
 $pfe = $req_pfe->fetch_assoc();
 
-// Traitement du formulaire de modification
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données du formulaire
+    
     $titre = trim($_POST['titre']);
     $resume = trim($_POST['resume']);
     $organisme = trim($_POST['organisme']);
     $encadrant_ex = trim($_POST['encadrant_ex']);
     $email_ex = trim($_POST['email_ex']);
 
-    // Validation des données
+    
     if (empty($titre)) {
         $errors[] = "Le titre est obligatoire";
     }
@@ -57,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "L'encadrant externe est obligatoire";
     }
 
-    // Gestion du fichier rapport si fourni
-    $rapport = $pfe['rapport']; // Conserver l'ancien rapport par défaut
+    
+    $rapport = $pfe['rapport']; 
 
     if (isset($_FILES['rapport']) && $_FILES['rapport']['error'] === 0) {
         $allowed = ['pdf', 'doc', 'docx'];
@@ -68,21 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array(strtolower($filetype), $allowed)) {
             $errors[] = "Le format du rapport n'est pas autorisé. Utilisez PDF, DOC ou DOCX.";
         } else {
-            // Chemin pour stocker les fichiers (directement dans htdocs)
+            
             $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/rapports_pfe/';
 
-            // Création du dossier si nécessaire
+            
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0777, true);
             }
 
-            // Générer un nom de fichier unique
+            
             $new_filename = uniqid('rapport_') . '.' . $filetype;
             $upload_file = $upload_dir . $new_filename;
-            $db_file_path = 'rapports_pfe/' . $new_filename; // Chemin relatif pour la BD
+            $db_file_path = 'rapports_pfe/' . $new_filename; 
 
             if (move_uploaded_file($_FILES['rapport']['tmp_name'], $upload_file)) {
-                // Supprimer l'ancien rapport si existant
+                
                 if (!empty($pfe['rapport']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport'])) {
                     unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport']);
                 }
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Si pas d'erreurs, mise à jour du PFE
+    
     if (empty($errors)) {
         $query = "UPDATE pfes SET 
                   titre = ?, 
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             $success = "Le PFE a été mis à jour avec succès.";
-            // Mettre à jour les données affichées
+            
             $pfe['titre'] = $titre;
             $pfe['resume'] = $resume;
             $pfe['organisme'] = $organisme;
@@ -132,85 +132,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Modifier PFE - SMART-PFE</title>
     <link rel="stylesheet" href="../mystyles.css">
 </head>
-<body>
-<?php include('enseignant_header.php'); ?>
+<body class="login_body">
+<div class="Con">
+    <div class="for" id="login-form">
+        <form method="post" enctype="multipart/form-data" class="modifier-pfe-form">
+            <h2 class="login_h2">Modifier le PFE</h2>
+            <p class="p">Projet de: <?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?></p>
 
-<div class="container">
-    <h1>Modifier le PFE</h1>
+            <?php if (!empty($errors)): ?>
+                <div class="error-message">
+                    <ul>
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
-    <div class="back-link">
-        <a href="consulter_pfe.php?id=<?= $pfe_id ?>">← Retour aux détails</a>
-    </div>
+            <?php if (!empty($success)): ?>
+                <div class="success-message">
+                    <?= htmlspecialchars($success) ?>
+                </div>
+            <?php endif; ?>
 
-    <?php if (!empty($errors)): ?>
-        <div class="error-message">
-            <ul>
-                <?php foreach ($errors as $error): ?>
-                    <li><?= htmlspecialchars($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($success)): ?>
-        <div class="success-message">
-            <?= htmlspecialchars($success) ?>
-        </div>
-    <?php endif; ?>
-
-    <div class="form-container">
-        <h2>Projet de: <?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?></h2>
-
-        <form method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="titre">Titre du PFE:</label>
-                <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($pfe['titre']) ?>" required>
+            <div>
+                <label>Titre du PFE</label>
+                <input class="login_input" type="text" name="titre" value="<?= htmlspecialchars($pfe['titre']) ?>" placeholder="Titre*" required>
             </div>
 
-            <div class="form-group">
-                <label for="resume">Résumé:</label>
-                <textarea id="resume" name="resume" rows="8"><?= htmlspecialchars($pfe['resume']) ?></textarea>
+            <div>
+                <label>Résumé</label>
+                <textarea class="login_input" name="resume" placeholder="Résumé"><?= htmlspecialchars($pfe['resume']) ?></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="organisme">Organisme:</label>
-                <input type="text" id="organisme" name="organisme" value="<?= htmlspecialchars($pfe['organisme']) ?>" required>
+            <div>
+                <label>Organisme</label>
+                <input class="login_input" type="text" name="organisme" value="<?= htmlspecialchars($pfe['organisme']) ?>" placeholder="Organisme*" required>
             </div>
 
-            <div class="form-group">
-                <label for="encadrant_ex">Encadrant externe:</label>
-                <input type="text" id="encadrant_ex" name="encadrant_ex" value="<?= htmlspecialchars($pfe['encadrant_ex']) ?>" required>
+            <div>
+                <label>Encadrant externe</label>
+                <input class="login_input" type="text" name="encadrant_ex" value="<?= htmlspecialchars($pfe['encadrant_ex']) ?>" placeholder="Encadrant externe*" required>
             </div>
 
-            <div class="form-group">
-                <label for="email_ex">Email encadrant externe:</label>
-                <input type="email" id="email_ex" name="email_ex" value="<?= htmlspecialchars($pfe['email_ex']) ?>">
+            <div>
+                <label>Email encadrant externe</label>
+                <input class="login_input" type="email" name="email_ex" value="<?= htmlspecialchars($pfe['email_ex']) ?>" placeholder="Email encadrant externe">
             </div>
 
-            <div class="form-group">
-                <label for="rapport">Rapport (PDF, DOC, DOCX):</label>
+            <div>
+                <label>Rapport de PFE (PDF, DOC, DOCX)</label>
+                <input class="login_input" type="file" name="rapport" accept=".pdf,.doc,.docx">
+                
                 <?php if (!empty($pfe['rapport'])): ?>
-                    <p class="file-info">
-                        Rapport actuel:
+                    <div class="current-file">
+                        Fichier actuel: 
                         <a href="/<?= htmlspecialchars($pfe['rapport']) ?>" target="_blank">
                             <?= htmlspecialchars(basename($pfe['rapport'])) ?>
                         </a>
-                        <span>(Taille: <?= round(filesize($_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport']) / 1024) ?> KB)</span>
-                    </p>
+                        <?php if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport'])): ?>
+                            (<?= round(filesize($_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport']) / 1024) ?> KB)
+                        <?php endif; ?>
+                    </div>
                 <?php else: ?>
-                    <p class="file-info">Aucun rapport actuellement.</p>
+                    <div class="current-file">Aucun rapport actuellement.</div>
                 <?php endif; ?>
-                <input type="file" id="rapport" name="rapport">
-                <p class="help-text">Laissez vide pour conserver le rapport actuel.</p>
+                <p class="p">Laissez vide pour conserver le rapport actuel.</p>
             </div>
 
-            <div class="form-submit">
-                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+            <div class="form-actions">
+                <button class="login_button" type="submit">Enregistrer</button>
+                <a href="consulter_pfe.php?id=<?= $pfe_id ?>" class="login_button cancel">Annuler</a>
             </div>
         </form>
     </div>
 </div>
-
-<?php include('enseignant_footer.php'); ?>
 </body>
 </html>

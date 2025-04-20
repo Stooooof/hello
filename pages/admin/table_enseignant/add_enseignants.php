@@ -2,18 +2,15 @@
 include('../../connexion_db.php');
 session_start();
 
-// Vérifier que l'utilisateur est admin
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../login.php');
     exit();
 }
 
-// Initialisation des variables
 $errors = [];
 $nom = $prenom = $email = '';
 $dept_id = '';
 
-// Récupérer la liste des enseignants sans profil complet (basé sur email)
 $enseignants_sans_profil = $conn->query("
     SELECT u.id, u.email 
     FROM users u
@@ -22,16 +19,14 @@ $enseignants_sans_profil = $conn->query("
     )
 ");
 
-// Traitement du formulaire
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
     $user_id = trim($_POST['user_id']);
     $nom = trim($_POST['nom']);
     $prenom = trim($_POST['prenom']);
     $email = trim($_POST['email']);
     $dept_id = trim($_POST['dept_id']);
 
-    // Validation
     if (empty($user_id)) {
         $errors['user'] = "Vous devez sélectionner un enseignant";
     }
@@ -50,9 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['email'] = "Format d'email invalide";
     }
 
-    // Si pas d'erreurs
     if (empty($errors)) {
-        // Insertion dans la table enseignants (sans user_id)
         $sql = "INSERT INTO enseignants (nom, prenom, email, dept_id)
                 VALUES (?, ?, ?, ?)";
 
@@ -69,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer la liste des départements pour le select
 $departements = $conn->query("SELECT id, nom FROM departements");
 ?>
 

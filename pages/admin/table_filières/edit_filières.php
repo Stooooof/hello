@@ -1,10 +1,10 @@
 <?php
 include('../../connexion_db.php');
 
-// 1. Récupérer l'ID de la filière
+
 $id = $_GET['id'];
 
-// 2. Récupérer les données de la filière
+
 $sql = "SELECT * FROM filieres WHERE id = $id";
 $result = $conn->query($sql);
 $filiere = $result->fetch_assoc();
@@ -14,23 +14,21 @@ if (!$filiere) {
     exit();
 }
 
-// 3. Récupérer les listes pour les selects
+
 $departements = $conn->query("SELECT id, nom FROM departements ORDER BY nom");
 $enseignants = $conn->query("SELECT id, nom, prenom FROM enseignants ORDER BY nom, prenom");
 
-// 4. Traitement du formulaire
+
 if (isset($_POST['submit'])) {
     $nom = $_POST['nom'];
     $dept_id = $_POST['dept_id'];
     $coord_id = $_POST['coord_id'] ?: null;
 
-    // Validation
     $errors = [];
     if (empty($nom)) $errors['nom'] = "Nom requis";
     if (empty($dept_id)) $errors['dept_id'] = "Département requis";
 
     if (empty($errors)) {
-        // Requête de mise à jour
         $sql = "UPDATE filieres SET 
                 nom = ?,
                 dept_id = ?,

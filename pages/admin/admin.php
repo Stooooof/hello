@@ -1,9 +1,19 @@
+
 <?php
 session_start();
+
+include('../connexion_db.php');
 if(!isset($_SESSION['email'])){
     header('location: ../../index.php');
     exit();
 }
+
+$nb_etudiants = $conn->query("SELECT COUNT(*) as total FROM etudiants")->fetch_assoc()['total'];
+$nb_enseignants = $conn->query("SELECT COUNT(*) as total FROM enseignants")->fetch_assoc()['total'];
+$nb_pfes = $conn->query("SELECT COUNT(*) as total FROM pfes")->fetch_assoc()['total'];
+
+$nom_affiche = isset($_SESSION['prenom']) ? htmlspecialchars($_SESSION['prenom'] . ' ' . $_SESSION['nom']) : htmlspecialchars($_SESSION['email']);
+
 
 ?>
 
@@ -25,17 +35,18 @@ if(!isset($_SESSION['email'])){
     ?>
 
     <main>
-        <div class="line"></div>
+        <div class="main-content">
+            <div>
+                <h1>Bienvenue, <span><?= $nom_affiche ?></span></h1>
+                <p>Ceci est votre espace <strong>administrateur</strong>.</p>
 
-        <section class="projects">
-            <h1>Welcome, <span><?php echo htmlspecialchars($_SESSION['email']); ?></span></h1>
-            <p>This is an <span>admin</span> page</p>
-
-
-
-
-
-        </section>
+                <div class="stats">
+                    <div class="stat">👨‍🎓 Étudiants : <strong><?= $nb_etudiants ?></strong></div>
+                    <div class="stat">👩‍🏫 Enseignants : <strong><?= $nb_enseignants ?></strong></div>
+                    <div class="stat">📂 PFEs : <strong><?= $nb_pfes ?></strong></div>
+                </div>
+            </div>
+        </div>
 
     </main>
 </div>

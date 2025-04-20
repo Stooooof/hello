@@ -1,23 +1,18 @@
 <?php
 include('../../connexion_db.php');
 
-// Initialisation des variables
 $errors = [];
 $nom = '';
 $chef_id = '';
 
-// Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
     $nom = trim($_POST['nom']);
     $chef_id = trim($_POST['chef_id']);
 
-    // Validation
     if (empty($nom)) {
         $errors['nom'] = "Le nom du département est obligatoire";
     }
 
-    // Vérifier si le département existe déjà
     $check_sql = "SELECT id FROM departements WHERE nom = ?";
     $check_stmt = $conn->prepare($check_sql);
     $check_stmt->bind_param("s", $nom);
@@ -28,9 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['submit'] = "Un département avec ce nom existe déjà";
     }
 
-    // Si pas d'erreurs
     if (empty($errors)) {
-        // Insertion dans la base
         $sql = "INSERT INTO departements (nom, chef_id)
                 VALUES (?, ?)";
 
@@ -47,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer la liste des enseignants pour le select (chef de département)
 $enseignants = $conn->query("SELECT id, nom, prenom FROM enseignants");
 ?>
 

@@ -2,7 +2,7 @@
 session_start();
 include('../connexion_db.php');
 
-// Vérification de l'authentification et du rôle
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'enseignant') {
     header("Location: ../login.php");
     exit();
@@ -10,11 +10,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'enseignant') {
 
 $enseignant_id = $_SESSION['enseignant_id'];
 
-// Récupération des informations de l'enseignant
+
 $req_info = $conn->query("SELECT * FROM enseignants WHERE id = $enseignant_id");
 $enseignant = $req_info->fetch_assoc();
 
-// Récupération des PFEs encadrés par l'enseignant
+
 $req_pfes = $conn->query("
     SELECT p.*, e.nom AS etudiant_nom, e.prenom AS etudiant_prenom 
     FROM pfes p 
@@ -31,45 +31,37 @@ $req_pfes = $conn->query("
     <title>SMART-PFE - Espace Enseignant</title>
     <link rel="stylesheet" href="../mystyles.css">
 </head>
-<body>
+<body class="login_body">
+<div class="Con">
+    <div class="dashboard">
+        <div class="logout">
+            <a href="../logout.php" class="btn">Déconnexion</a>
+        </div>
 
+        <div class="welcome">
+            <h2 class="login_h2">Bienvenue, <?= htmlspecialchars($enseignant['prenom'] . ' ' . $enseignant['nom']) ?></h2>
+        </div>
 
-<div class="container">
-    <h1>Bienvenue, <?= htmlspecialchars($enseignant['prenom'] . ' ' . $enseignant['nom']) ?></h1>
-
-    <section class="pfes-section">
-        <h2>Mes PFEs encadrés</h2>
-
-        <?php if ($req_pfes->num_rows > 0): ?>
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>Étudiant</th>
-                    <th>Titre</th>
-                    <th>Organisme</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
+        <div class="pfe-list">
+            <?php if ($req_pfes->num_rows > 0): ?>
                 <?php while($pfe = $req_pfes->fetch_assoc()): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?></td>
-                        <td><?= htmlspecialchars($pfe['titre']) ?></td>
-                        <td><?= htmlspecialchars($pfe['organisme']) ?></td>
-                        <td>
-                            <a href="consulter_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-view">Consulter</a>
-                            <a href="modifier_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-edit">Modifier</a>
-                        </td>
-                    </tr>
+                    <div class="pfe-card">
+                        <h3><?= htmlspecialchars($pfe['titre']) ?></h3>
+                        <p><strong>Étudiant:</strong> <?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?></p>
+                        <p><strong>Organisme:</strong> <?= htmlspecialchars($pfe['organisme']) ?></p>
+                        <p><strong>Statut:</strong> <?= $pfe['rapport'] ? 'Complet' : 'En cours' ?></p>
+
+                        <div class="pfe-actions">
+                            <a href="consulter_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-primary">Consulter</a>
+                            <a href="modifier_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-primary">Modifier</a>
+                        </div>
+                    </div>
                 <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p class="info-message">Vous n'encadrez actuellement aucun PFE.</p>
-        <?php endif; ?>
-    </section>
+            <?php else: ?>
+                <p class="info-message">Vous n'encadrez actuellement aucun PFE.</p>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
-
-
 </body>
 </html>

@@ -2,13 +2,13 @@
 session_start();
 include('../connexion_db.php');
 
-// Vérification de l'authentification et du rôle
+
 if (!isset($_SESSION['email'])) {
     header('Location: ../login.php');
     exit();
 }
 
-// Récupérer les informations de l'étudiant
+
 $email = $_SESSION['email'];
 $user_query = $conn->query("SELECT u.*, e.nom, e.prenom, e.matricule 
                           FROM users u 
@@ -23,7 +23,7 @@ if ($user_query->num_rows === 0) {
 $user = $user_query->fetch_assoc();
 $etudiant_id = $user['user_id'];
 
-// Récupérer les PFEs de l'étudiant
+
 $pfes = $conn->query("SELECT * FROM pfes WHERE etudiant_id = $etudiant_id ORDER BY id DESC");
 ?>
 
@@ -33,56 +33,7 @@ $pfes = $conn->query("SELECT * FROM pfes WHERE etudiant_id = $etudiant_id ORDER 
     <meta charset="UTF-8">
     <title>Espace Étudiant - SMART-PFE</title>
     <link rel="stylesheet" href="../mystyles.css">
-    <style>
-        .dashboard {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .welcome {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .pfe-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .pfe-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .pfe-actions {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            padding: 8px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
-        .btn-success {
-            background: #2ecc71;
-            color: white;
-        }
-        .add-pfe {
-            display: block;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .logout {
-            text-align: right;
-            margin-bottom: 20px;
-        }
-    </style>
+
 </head>
 <body class="login_body">
 <div class="Con">
@@ -95,6 +46,16 @@ $pfes = $conn->query("SELECT * FROM pfes WHERE etudiant_id = $etudiant_id ORDER 
             <h2 class="login_h2">Bienvenue, <?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h2>
             <p>Matricule: <?= htmlspecialchars($user['matricule']) ?></p>
         </div>
+
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert-success"><?= $_SESSION['success'] ?></div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert-error"><?= $_SESSION['error'] ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
 
         <div class="add-pfe">
             <a href="add_pfe.php" class="btn btn-success">+ Ajouter un PFE</a>
@@ -111,6 +72,7 @@ $pfes = $conn->query("SELECT * FROM pfes WHERE etudiant_id = $etudiant_id ORDER 
                         <div class="pfe-actions">
                             <a href="view_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-primary">Voir</a>
                             <a href="edit_pfe.php?id=<?= $pfe['id'] ?>" class="btn btn-primary">Modifier</a>
+                            <a href="confirm_delete.php?id=<?= $pfe['id'] ?>" class="error">Supprimer</a>
                         </div>
                     </div>
                 <?php endwhile; ?>

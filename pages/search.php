@@ -49,7 +49,7 @@ if (isset($_GET['q']) && !empty(trim($_GET['q']))) {
         <p class="p"> Aucun PFE trouvé. </p>
     </div>
         <?php else: ?>
-            <div class="table-container" >
+            <div class="table-container" style="max-height: 400px; overflow-y: auto;">
                 <table class="crud_table">
                     <thead class="p">
                     <tr>
@@ -69,6 +69,8 @@ if (isset($_GET['q']) && !empty(trim($_GET['q']))) {
             </div>
         <?php endif; ?>
     <?php endif; ?>
+    <br>
+    <br>
     <br>
     <br>
 

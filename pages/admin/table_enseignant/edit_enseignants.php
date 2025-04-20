@@ -1,28 +1,24 @@
 <?php
 include('../../connexion_db.php');
 
-// 1. Récupérer l'ID de l'enseignant
 $id = $_GET['id'];
 
 $sql = "SELECT * FROM enseignants WHERE id = $id";
 $result = $conn->query($sql);
 $enseignant = $result->fetch_assoc();
 
-// 2. Récupérer la liste des départements
 $departements_result = $conn->query("SELECT * FROM departements");
 $departements = [];
 while($row = $departements_result->fetch_assoc()) {
     $departements[] = $row;
 }
 
-// 3. Traitement du formulaire
 if(isset($_POST['submit'])) {
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
     $email = $_POST['email'];
     $dept_id = $_POST['dept_id'];
 
-    // 4. Requête de mise à jour
     $sql = "UPDATE enseignants SET 
             nom = '$nom',
             prenom = '$prenom',

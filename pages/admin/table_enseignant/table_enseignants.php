@@ -1,7 +1,6 @@
 <?php
 include('../../connexion_db.php');
 
-// Récupérer tous les enseignants avec leurs départements
 $sql = "SELECT e.*, d.nom as departement_nom 
         FROM enseignants e 
         LEFT JOIN departements d ON e.dept_id = d.id";

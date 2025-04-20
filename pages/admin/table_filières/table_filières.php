@@ -23,7 +23,6 @@ session_start();
 
     <h2 class="login_h2">Liste des Filières</h2>
 
-    <!-- Affichage des messages -->
     <?php if (isset($_SESSION['error'])): ?>
         <div class="error-message"><?= $_SESSION['error'] ?></div>
         <?php unset($_SESSION['error']); ?>
@@ -42,7 +41,6 @@ session_start();
     <br><br>
 
     <?php
-    // Récupérer toutes les filières avec leurs départements et coordinateurs
     $sql = "SELECT f.*, d.nom as departement_nom, 
             CONCAT(e.nom, ' ', e.prenom) as coordonnateur_nom
             FROM filieres f

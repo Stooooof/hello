@@ -1,20 +1,18 @@
 <?php
 include('../../connexion_db.php');
 
-// Initialisation des variables
 $errors = [];
 $nom = '';
 $dept_id = '';
 $coord_id = '';
 
-// Traitement du formulaire
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
+
     $nom = trim($_POST['nom']);
     $dept_id = trim($_POST['dept_id']);
     $coord_id = trim($_POST['coord_id']) ?: null;
 
-    // Validation
     if (empty($nom)) {
         $errors['nom'] = "Le nom de la filière est obligatoire";
     }
@@ -23,9 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['dept_id'] = "Le département est obligatoire";
     }
 
-    // Si pas d'erreurs
     if (empty($errors)) {
-        // Insertion dans la base
         $sql = "INSERT INTO filieres (nom, dept_id, coord_id) 
                 VALUES (?, ?, ?)";
 
@@ -42,10 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer la liste des départements
 $departements = $conn->query("SELECT id, nom FROM departements ORDER BY nom");
 
-// Récupérer la liste des enseignants (pour coordinateur)
 $enseignants = $conn->query("SELECT id, nom, prenom FROM enseignants ORDER BY nom, prenom");
 ?>
 

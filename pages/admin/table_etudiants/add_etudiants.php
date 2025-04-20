@@ -2,19 +2,17 @@
 include('../../connexion_db.php');
 session_start();
 
-// Vérifier que l'utilisateur est admin
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../../login.php');
     exit();
 }
 
-// Initialisation des variables
 $errors = [];
 $matricule = $nom = $prenom = $email = $tel = '';
-$promotion = date('Y'); // Valeur par défaut = année courante
+$promotion = date('Y');
 $fil_id = '';
 
-// Récupérer la liste des étudiants sans profil complet (en utilisant email comme lien)
 $etudiants_sans_profil = $conn->query("
     SELECT u.id, u.email 
     FROM users u
@@ -23,9 +21,7 @@ $etudiants_sans_profil = $conn->query("
     )
 ");
 
-// Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
     $user_id = trim($_POST['user_id']);
     $matricule = trim($_POST['matricule']);
     $nom = trim($_POST['nom']);
@@ -35,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $promotion = trim($_POST['promotion']);
     $fil_id = trim($_POST['fil_id']);
 
-    // Validation
     if (empty($user_id)) {
         $errors['user'] = "Vous devez sélectionner un étudiant";
     }
@@ -52,9 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['prenom'] = "Le prénom est obligatoire";
     }
 
-    // Si pas d'erreurs
     if (empty($errors)) {
-        // Insertion dans la table etudiants
         $sql = "INSERT INTO etudiants (matricule, nom, prenom, email, tel, promotion, fil_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -62,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sssssii", $matricule, $nom, $prenom, $email, $tel, $promotion, $fil_id);
 
         if ($stmt->execute()) {
-            // Mettre à jour le user_id dans users si la colonne existe
             @$conn->query("UPDATE users SET user_id = ".$stmt->insert_id." WHERE id = $user_id");
 
             $_SESSION['success'] = "Profil étudiant complété avec succès";
@@ -74,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer la liste des filières pour le select
 $filieres = $conn->query("SELECT id, nom FROM filieres");
 ?>
 

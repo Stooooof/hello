@@ -2,20 +2,17 @@
 session_start();
 include('../../connexion_db.php');
 
-// Vérification de l'authentification
 if (!isset($_SESSION['email'])) {
     header('Location: ../../login.php');
     exit();
 }
 
-// Récupération du rôle de l'utilisateur
 $email = $_SESSION['email'];
 $user_query = $conn->query("SELECT role, user_id FROM users WHERE email = '$email'");
 $user = $user_query->fetch_assoc();
 $role = $user['role'];
 $user_id = $user['user_id'];
 
-// Construction de la requête selon le rôle
 if ($role === 'admin') {
     $query = "SELECT p.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, 
               en.nom as encadrant_nom, en.prenom as encadrant_prenom
@@ -36,11 +33,9 @@ if ($role === 'admin') {
 
 $result = $conn->query($query);
 
-// Traitement de la suppression
+
 if (isset($_GET['delete'])) {
     $pfe_id = (int)$_GET['delete'];
-
-    // Récupérer le chemin du rapport avant suppression
     $file_query = $conn->query("SELECT rapport FROM pfes WHERE id = $pfe_id");
     $file = $file_query->fetch_assoc();
 

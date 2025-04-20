@@ -2,13 +2,12 @@
 session_start();
 include('../connexion_db.php');
 
-// Vérification de l'authentification
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'etudiant') {
     header('Location: ../login.php');
     exit();
 }
 
-// Récupérer l'ID de l'étudiant
+
 $email = $_SESSION['email'];
 $etudiant_query = $conn->query("SELECT id FROM etudiants WHERE email = '$email'");
 if ($etudiant_query->num_rows === 0) {
@@ -20,14 +19,14 @@ $etudiant_id = $etudiant['id'];
 $errors = [];
 $uploadDir = "C:/xampp/htdocs/pfe_uploads/";
 
-// Créer le dossier si inexistant
+
 if (!file_exists($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
-// Traitement du formulaire
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
+    
     $titre = trim($_POST['titre']);
     $resume = trim($_POST['resume']);
     $organisme = trim($_POST['organisme']);
@@ -35,13 +34,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email_ex = trim($_POST['email_ex']);
     $encadrant_in_id = (int)$_POST['encadrant_in_id'];
 
-    // Validation
+    
     if (empty($titre)) $errors['titre'] = "Titre obligatoire";
     if (empty($organisme)) $errors['organisme'] = "Organisme obligatoire";
     if (empty($encadrant_ex)) $errors['encadrant_ex'] = "Encadrant externe obligatoire";
     if (empty($encadrant_in_id)) $errors['encadrant_in'] = "Encadrant interne obligatoire";
 
-    // Gestion du fichier
+    
     $rapportPath = null;
     if (isset($_FILES['rapport']) && $_FILES['rapport']['error'] === 0) {
         $fileExt = strtolower(pathinfo($_FILES['rapport']['name'], PATHINFO_EXTENSION));
@@ -62,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['rapport'] = "Fichier requis";
     }
 
-    // Insertion si pas d'erreurs
+    
     if (empty($errors)) {
         $sql = "INSERT INTO pfes (titre, resume, organisme, encadrant_ex, email_ex, encadrant_in_id, etudiant_id, rapport)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -83,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer les enseignants pour le select
+
 $enseignants = $conn->query("SELECT id, nom, prenom FROM enseignants ORDER BY nom");
 ?>
 

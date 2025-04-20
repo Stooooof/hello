@@ -2,13 +2,13 @@
 session_start();
 include('../connexion_db.php');
 
-// Vérification de l'authentification
+
 if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'etudiant') {
     header('Location: ../login.php');
     exit();
 }
 
-// Récupérer l'ID de l'étudiant depuis la table etudiants (pas users)
+
 $email = $_SESSION['email'];
 $etudiant_query = $conn->query("SELECT id FROM etudiants WHERE email = '$email'");
 if ($etudiant_query->num_rows === 0) {
@@ -17,14 +17,14 @@ if ($etudiant_query->num_rows === 0) {
 $etudiant = $etudiant_query->fetch_assoc();
 $etudiant_id = $etudiant['id'];
 
-// Vérifier que l'ID PFE est présent et valide
+
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header('Location: etudiant.php');
     exit();
 }
 $pfe_id = (int)$_GET['id'];
 
-// Requête sécurisée avec jointure
+
 $query = "SELECT p.*, e.nom as encadrant_nom, e.prenom as encadrant_prenom 
           FROM pfes p
           LEFT JOIN enseignants e ON p.encadrant_in_id = e.id
@@ -41,7 +41,7 @@ if (!$pfe) {
     exit();
 }
 
-// Téléchargement du fichier
+
 if (isset($_GET['download']) && !empty($pfe['rapport'])) {
     $file_path = $_SERVER['DOCUMENT_ROOT'] . '/' . $pfe['rapport'];
 
@@ -67,45 +67,6 @@ if (isset($_GET['download']) && !empty($pfe['rapport'])) {
     <meta charset="UTF-8">
     <title>Détails du PFE</title>
     <link rel="stylesheet" href="../mystyles.css">
-    <style>
-        .pfe-details {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .detail-row {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 4px;
-        }
-        .detail-label {
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .actions {
-            margin-top: 30px;
-            display: flex;
-            gap: 15px;
-        }
-        .download-btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        .error-message {
-            color: #f44336;
-            margin: 15px 0;
-        }
-    </style>
 </head>
 <body class="login_body">
 <div class="Con">
@@ -134,7 +95,7 @@ if (isset($_GET['download']) && !empty($pfe['rapport'])) {
 
         <div class="detail-row">
             <span class="detail-label">Résumé:</span>
-            <div style="white-space: pre-line;"><?= htmlspecialchars($pfe['resume']) ?></div>
+            <div class="resume-text"><?= htmlspecialchars($pfe['resume']) ?></div>
         </div>
 
         <?php if ($pfe['rapport']): ?>
@@ -143,7 +104,7 @@ if (isset($_GET['download']) && !empty($pfe['rapport'])) {
                 <a href="view_pfe.php?id=<?= $pfe_id ?>&download=1" class="download-btn">
                     Télécharger le rapport
                 </a>
-                <span style="margin-left: 10px;">
+                <span class="file-size">
                 (<?= round(filesize($_SERVER['DOCUMENT_ROOT'].'/'.$pfe['rapport'])/1024 )?> KB)
             </span>
             </div>
@@ -156,7 +117,7 @@ if (isset($_GET['download']) && !empty($pfe['rapport'])) {
 
         <div class="actions">
             <a href="edit_pfe.php?id=<?= $pfe_id ?>" class="login_button">Modifier</a>
-            <a href="etudiant.php" class="login_button" style="background: #6c757d;">Retour</a>
+            <a href="etudiant.php" class="login_button cancel">Retour</a>
         </div>
     </div>
 </div>

@@ -26,7 +26,6 @@ session_start();
         <h2 class="login_h2">Liste des Départements</h2>
 
 
-        <!-- Affichage des messages -->
         <?php if (isset($_SESSION['error'])): ?>
             <div class="error-message"><?= $_SESSION['error'] ?></div>
             <?php unset($_SESSION['error']); ?>
@@ -45,7 +44,6 @@ session_start();
         <br><br>
 
         <?php
-        // Récupérer tous les départements avec leurs chefs
         $sql = "SELECT d.*, CONCAT(e.nom, ' ', e.prenom) as chef_nom 
                     FROM departements d 
                     LEFT JOIN enseignants e ON d.chef_id = e.id

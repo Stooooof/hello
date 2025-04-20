@@ -2,7 +2,6 @@
 session_start();
 include('../../connexion_db.php');
 
-// 1. Vérification de l'ID
 if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
     $_SESSION['error'] = "ID de filière invalide";
     header('Location: table_filières.php');
@@ -11,7 +10,6 @@ if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
 
 $id = (int)$_GET['id'];
 
-// 2. Vérifier que la filière existe
 $check_filiere = $conn->prepare("SELECT nom FROM filieres WHERE id = ?");
 $check_filiere->bind_param("i", $id);
 $check_filiere->execute();
@@ -23,7 +21,6 @@ if (!$filiere) {
     exit();
 }
 
-// 3. Vérifier les contraintes avant suppression
 $constraints = [
     'etudiants' => [
         'sql' => "SELECT COUNT(*) FROM etudiants WHERE fil_id = ?",
@@ -47,18 +44,15 @@ foreach ($constraints as $key => $constraint) {
     }
 }
 
-// 4. Si contraintes trouvées
 if (!empty($blockers)) {
     $_SESSION['error'] = "Impossible de supprimer '".htmlspecialchars($filiere['nom'])."' :<br>- " . implode("<br>- ", $blockers);
     header('Location: table_filières.php');
     exit();
 }
 
-// 5. Suppression si aucune contrainte
 try {
     $conn->begin_transaction();
 
-    // Supprimer la filière
     $delete_stmt = $conn->prepare("DELETE FROM filieres WHERE id = ?");
     $delete_stmt->bind_param("i", $id);
     $delete_stmt->execute();
@@ -70,7 +64,6 @@ try {
     $_SESSION['error'] = "Erreur technique : " . $e->getMessage();
 }
 
-// 6. Redirection
 header('Location: table_filières.php');
 exit();
 ?>
