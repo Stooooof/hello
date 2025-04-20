@@ -850,3 +850,58 @@ textarea.login_input {
     background-color: #5a6268;
 }
 
+/* Styles pour search.php */
+.pfe-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.pfe-link:hover {
+    text-decoration: underline;
+}
+
+.no-file {
+    color: #777;
+    font-style: italic;
+}
+
+.crud_table th:nth-child(4),
+.crud_table td:nth-child(4) {
+    text-align: center;
+}
+
+/* Styles pour fixer l'en-tête du tableau */
+.search-table-container {
+    position: relative;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.search-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.search-table-container thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.search-table-container th {
+    background-color: #394867;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.search-table-container th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.search-table-container th:last-child {
+    border-top-right-radius: 8px;
+}
+

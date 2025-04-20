@@ -94,12 +94,12 @@ if (isset($_GET['delete'])) {
                 <th>Actions</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody >
             <?php while ($pfe = $result->fetch_assoc()): ?>
                 <tr>
-                    <td><?= htmlspecialchars($pfe['titre']) ?></td>
+                    <td class="p"><?= htmlspecialchars($pfe['titre']) ?></td>
 
-                    <td>
+                    <td class="p">
                         <?php if ($role !== 'etudiant'): ?>
                             <?= htmlspecialchars($pfe['etudiant_prenom'] . ' ' . $pfe['etudiant_nom']) ?>
                         <?php else: ?>
@@ -108,12 +108,12 @@ if (isset($_GET['delete'])) {
                     </td>
 
                     <?php if ($role !== 'etudiant'): ?>
-                        <td>
+                        <td class="p">
                             <?= $pfe['encadrant_prenom'] ? htmlspecialchars($pfe['encadrant_prenom'] . ' ' . $pfe['encadrant_nom']) : 'Non assigné' ?>
                         </td>
                     <?php endif; ?>
 
-                    <td><?= htmlspecialchars($pfe['organisme']) ?></td>
+                    <td class="p"><?= htmlspecialchars($pfe['organisme']) ?></td>
 
                     <td>
                         <a href="view_pfes.php?id=<?= $pfe['id'] ?>" class="btn-edit">Voir</a>
